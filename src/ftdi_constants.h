@@ -42,7 +42,7 @@
 
 #define FT_STATUS_CUSTOM_ALREADY_OPEN				"Device Already open"
 #define FT_STATUS_CUSTOM_ALREADY_CLOSING			"Device Already closing"
-
+#define INT2VOIDP(i) (void*)(uintptr_t)(i)
 // Lock for Library Calls
 extern uv_mutex_t libraryMutex;
 extern uv_mutex_t vidPidMutex;

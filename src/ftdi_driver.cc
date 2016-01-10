@@ -107,9 +107,9 @@ DeviceListBaton* FindAllAsync(int vid, int pid)
       for(DWORD i = 0; i < numDevs; i++)
       {
         uv_mutex_lock(&libraryMutex);
-        FT_ListDevices((PVOID)i, listBaton->devInfo[i].SerialNumber, FT_LIST_BY_INDEX | FT_OPEN_BY_SERIAL_NUMBER);
-        FT_ListDevices((PVOID)i, listBaton->devInfo[i].Description, FT_LIST_BY_INDEX | FT_OPEN_BY_DESCRIPTION);
-        FT_ListDevices((PVOID)i, &listBaton->devInfo[i].LocId, FT_LIST_BY_INDEX | FT_OPEN_BY_LOCATION);
+        FT_ListDevices(INT2VOIDP(i), listBaton->devInfo[i].SerialNumber, FT_LIST_BY_INDEX | FT_OPEN_BY_SERIAL_NUMBER);
+        FT_ListDevices(INT2VOIDP(i), listBaton->devInfo[i].Description, FT_LIST_BY_INDEX | FT_OPEN_BY_DESCRIPTION);
+        FT_ListDevices(INT2VOIDP(i), &listBaton->devInfo[i].LocId, FT_LIST_BY_INDEX | FT_OPEN_BY_LOCATION);
         uv_mutex_unlock(&libraryMutex);
       }
     }

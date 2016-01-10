@@ -478,7 +478,7 @@ FT_STATUS FtdiDevice::OpenDevice()
 
             case ConnectType_ByLocationId:
             {
-                arg = (PVOID) connectParams.connectId;
+                arg = INT2VOIDP(connectParams.connectId);
                 flags = FT_OPEN_BY_LOCATION;
                 // printf("OpenDevice [Flag: %d, Arg: %d]\r\n", flags, connectParams.connectId);
             }
