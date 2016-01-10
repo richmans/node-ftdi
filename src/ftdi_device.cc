@@ -714,6 +714,197 @@ FT_STATUS FtdiDevice::CloseAsync(FtdiDevice* device)
   return ftStatus;
 }
 
+/*****************************
+ * SETBREAK Section
+ *****************************/
+class SetBreakWorker : public NanAsyncWorker {
+ public:
+  SetBreakWorker(NanCallback *callback, FtdiDevice* device)
+    : NanAsyncWorker(callback), device(device) {}
+  ~SetBreakWorker() {}
+
+  // Executed inside the worker-thread.
+  // It is not safe to access V8, or V8 data structures
+  // here, so everything we need for input and output
+  // should go on `this`.
+  void Execute () {
+    status = FtdiDevice::SetBreakAsync(device);
+  }
+
+  // Executed when the async work is complete
+  // this function will be run inside the main event loop
+  // so it is safe to use V8 again
+  void HandleOKCallback () {
+    NanScope();
+
+    if(callback != NULL)
+    {
+      Local<Value> argv[1];
+      if(status != FT_OK)
+      {
+        argv[0] = NanNew<String>(GetStatusString(status));
+      }
+      else
+      {
+        argv[0] = Local<Value>(NanUndefined());
+      }
+
+      callback->Call(1, argv);
+    }
+  };
+
+ private:
+  FT_STATUS status;
+  FtdiDevice* device;
+};
+
+NAN_METHOD(FtdiDevice::SetBreak) {
+  NanScope();
+
+  NanCallback *callback = NULL;
+
+  // Obtain Device Object
+  FtdiDevice* device = ObjectWrap::Unwrap<FtdiDevice>(args.This());
+  if(device == NULL)
+  {
+    return NanThrowError("No FtdiDevice object found in Java Script object");
+  }
+
+  // Check the device state
+  if(device->deviceState != DeviceState_Open)
+  {
+    // callback
+    if(args[0]->IsFunction())
+    {
+      Local<Value> argv[1];
+      argv[0] = NanNew<String>(FT_STATUS_CUSTOM_ALREADY_CLOSING);
+      callback = new NanCallback(args[0].As<v8::Function>());
+      callback->Call(1, argv);
+    }
+  }
+  else
+  {
+    
+     // callback
+    if(args[0]->IsFunction())
+    {
+      callback = new NanCallback(args[0].As<v8::Function>());
+    }
+
+    NanAsyncQueueWorker(new SetBreakWorker(callback, device));
+  }
+
+  NanReturnUndefined();
+}
+
+FT_STATUS FtdiDevice::SetBreakAsync(FtdiDevice* device)
+{
+  FT_STATUS ftStatus;
+
+  // Close the device
+  uv_mutex_lock(&libraryMutex);
+  ftStatus = FT_SetBreakOn(device->ftHandle);
+  uv_mutex_unlock(&libraryMutex);
+
+  return ftStatus;
+}
+
+
+/*****************************
+ * CLEARBREAK Section
+ *****************************/
+class ClearBreakWorker : public NanAsyncWorker {
+ public:
+  ClearBreakWorker(NanCallback *callback, FtdiDevice* device)
+    : NanAsyncWorker(callback), device(device) {}
+  ~ClearBreakWorker() {}
+
+  // Executed inside the worker-thread.
+  // It is not safe to access V8, or V8 data structures
+  // here, so everything we need for input and output
+  // should go on `this`.
+  void Execute () {
+    status = FtdiDevice::ClearBreakAsync(device);
+  }
+
+  // Executed when the async work is complete
+  // this function will be run inside the main event loop
+  // so it is safe to use V8 again
+  void HandleOKCallback () {
+    NanScope();
+
+    if(callback != NULL)
+    {
+      Local<Value> argv[1];
+      if(status != FT_OK)
+      {
+        argv[0] = NanNew<String>(GetStatusString(status));
+      }
+      else
+      {
+        argv[0] = Local<Value>(NanUndefined());
+      }
+
+      callback->Call(1, argv);
+    }
+  };
+
+ private:
+  FT_STATUS status;
+  FtdiDevice* device;
+};
+
+NAN_METHOD(FtdiDevice::ClearBreak) {
+  NanScope();
+
+  NanCallback *callback = NULL;
+
+  // Obtain Device Object
+  FtdiDevice* device = ObjectWrap::Unwrap<FtdiDevice>(args.This());
+  if(device == NULL)
+  {
+    return NanThrowError("No FtdiDevice object found in Java Script object");
+  }
+
+  // Check the device state
+  if(device->deviceState != DeviceState_Open)
+  {
+    // callback
+    if(args[0]->IsFunction())
+    {
+      Local<Value> argv[1];
+      argv[0] = NanNew<String>(FT_STATUS_CUSTOM_ALREADY_CLOSING);
+      callback = new NanCallback(args[0].As<v8::Function>());
+      callback->Call(1, argv);
+    }
+  }
+  else
+  {
+    
+     // callback
+    if(args[0]->IsFunction())
+    {
+      callback = new NanCallback(args[0].As<v8::Function>());
+    }
+
+    NanAsyncQueueWorker(new ClearBreakWorker(callback, device));
+  }
+
+  NanReturnUndefined();
+}
+
+FT_STATUS FtdiDevice::ClearBreakAsync(FtdiDevice* device)
+{
+  FT_STATUS ftStatus;
+
+  // Close the device
+  uv_mutex_lock(&libraryMutex);
+  ftStatus = FT_SetBreakOff(device->ftHandle);
+  uv_mutex_unlock(&libraryMutex);
+
+  return ftStatus;
+}
+
 
 /*****************************
  * Helper Section

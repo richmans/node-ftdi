@@ -79,11 +79,15 @@ class FtdiDevice : public ObjectWrap
     static NAN_METHOD(Open);
     static NAN_METHOD(Write);
     static NAN_METHOD(Close);
-
+    static NAN_METHOD(SetBreak);
+    static NAN_METHOD(ClearBreak);
+    
     static FT_STATUS OpenAsync(FtdiDevice* device, NanCallback *callback_read);
     static FT_STATUS ReadDataAsync(FtdiDevice* device, ReadBaton_t* baton);
     static FT_STATUS WriteAsync(FtdiDevice* device, WriteBaton_t* baton);
     static FT_STATUS CloseAsync(FtdiDevice* device);
+    static FT_STATUS SetBreakAsync(FtdiDevice* device);    
+    static FT_STATUS ClearBreakAsync(FtdiDevice* device);
 
     void ExtractDeviceSettings(Local<v8::Object> options);
     FT_STATUS SetDeviceSettings();
