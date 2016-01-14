@@ -38,7 +38,8 @@ using namespace ftdi_device;
 #define JS_WRITE_FUNCTION           "write"
 #define JS_OPEN_FUNCTION            "open"
 #define JS_CLOSE_FUNCTION           "close"
-
+#define JS_SETBREAK_FUNCTION           "setBreak"
+#define JS_CLEARBREAK_FUNCTION           "clearBreak"
 
 /**********************************
  * Local Helper Functions protoypes
@@ -912,7 +913,6 @@ FT_STATUS FtdiDevice::ClearBreakAsync(FtdiDevice* device)
 FT_STATUS FtdiDevice::SetDeviceSettings()
 {
   FT_STATUS ftStatus;
-
   uv_mutex_lock(&libraryMutex);
   ftStatus = FT_SetDataCharacteristics(ftHandle, deviceParams.wordLength, deviceParams.stopBits, deviceParams.parity);
   uv_mutex_unlock(&libraryMutex);
@@ -921,7 +921,7 @@ FT_STATUS FtdiDevice::SetDeviceSettings()
     fprintf(stderr, "Can't Set FT_SetDataCharacteristics: %s\n", error_strings[ftStatus]);
     return ftStatus;
   }
-
+  
   uv_mutex_lock(&libraryMutex);
   ftStatus = FT_SetBaudRate(ftHandle, deviceParams.baudRate);
   uv_mutex_unlock(&libraryMutex);
@@ -1145,7 +1145,9 @@ void FtdiDevice::Initialize(v8::Handle<v8::Object> target)
   tpl->PrototypeTemplate()->Set(NanNew<String>(JS_WRITE_FUNCTION), NanNew<FunctionTemplate>(Write)->GetFunction());
   tpl->PrototypeTemplate()->Set(NanNew<String>(JS_OPEN_FUNCTION), NanNew<FunctionTemplate>(Open)->GetFunction());
   tpl->PrototypeTemplate()->Set(NanNew<String>(JS_CLOSE_FUNCTION), NanNew<FunctionTemplate>(Close)->GetFunction());
-
+  tpl->PrototypeTemplate()->Set(NanNew<String>(JS_SETBREAK_FUNCTION), NanNew<FunctionTemplate>(SetBreak)->GetFunction());
+  tpl->PrototypeTemplate()->Set(NanNew<String>(JS_CLEARBREAK_FUNCTION), NanNew<FunctionTemplate>(ClearBreak)->GetFunction());
+ 
   Local<Function> constructor = tpl->GetFunction();
   target->Set(NanNew<String>(JS_CLASS_NAME), constructor);
 }

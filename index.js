@@ -98,6 +98,48 @@ FtdiDevice.prototype.write = function(data, callback) {
   });
 };
 
+
+/**
+ * The setBreak mechanism of the device.
+ * On success the callback will be called.
+ * On error 'error' will be emitted and the callback will be called.
+ * @param  {Function} callback The function, that will be called when device is closed. [optional]
+ *                             `function(err){}`
+ */
+FtdiDevice.prototype.setBreak = function(callback) {
+  var self = this;
+  if (this.isClosing) {
+    return;
+  }
+  this.FTDIDevice.setBreak(function(err) {
+    if (err) {
+      self.emit('error', err);
+    }
+    if (callback) callback(err);
+  });
+};
+
+
+/**
+ * The clearBreak mechanism of the device.
+ * On successthe callback will be called.
+ * On error 'error' will be emitted and the callback will be called.
+ * @param  {Function} callback The function, that will be called when device is closed. [optional]
+ *                             `function(err){}`
+ */
+FtdiDevice.prototype.clearBreak = function(callback) {
+  var self = this;
+  if (this.isClosing) {
+    return;
+  }
+  this.FTDIDevice.clearBreak(function(err) {
+    if (err) {
+      self.emit('error', err);
+    }
+    if (callback) callback(err);
+  });
+};
+
 /**
  * The close mechanism of the device.
  * On closed 'close' will be emitted and the callback will be called.
